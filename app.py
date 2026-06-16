@@ -1,4 +1,4 @@
-from flask import Flask,render_template,request,session,redirect
+from flask import Flask,render_template,request,session,redirect,flash
 from database.db import get_db_connection
 from werkzeug.security import check_password_hash,generate_password_hash
 from datetime import datetime
@@ -6,50 +6,61 @@ import random
 
 app=Flask(__name__)
 app.secret_key="railway_secret_key"
+
 @app.route('/')
 def home():
     return render_template("index.html")
 
 @app.route('/register',methods=['GET','POST'])
 def register():
-    if request.method=="POST":
-        name=request.form["name"]
-        email=request.form["email"]
-        password=generate_password_hash(request.form['password'])
-        
+    if request.method=='POST':
+        name=request.form['name']
+        email=request.form['email']
+        password=request.form['password']
         conn=get_db_connection()
-        cursor=conn.cursor()
-        
-        query="insert into users(name,email,password) values(%s,%s,%s)"
-        cursor.execute(query,(name,email,password))
+        cursor=conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users WHERE email=%s",(email,))
+        existing=cursor.fetchone()
+        if existing:
+            flash("Email already registered","warning")
+            cursor.close()
+            conn.close()
+            return redirect('/register')
+        hashed_password=generate_password_hash(password)
+        cursor.execute("""
+            INSERT INTO users(name,email,password)
+            VALUES(%s,%s,%s)
+            """,
+            (name,email,hashed_password)
+        )
         conn.commit()
         cursor.close()
         conn.close()
-        
-        return "Registration Successfull!"
-    return render_template("register.html")
+        flash("Registration Successful!","success")
+        return redirect('/login')
+    return render_template('register.html')
+
+from werkzeug.security import check_password_hash
 
 @app.route('/login',methods=['GET','POST'])
 def login():
-    if request.method=="POST":
+    if request.method=='POST':
         email=request.form['email']
         password=request.form['password']
-        
         conn=get_db_connection()
         cursor=conn.cursor(dictionary=True)
-        
-        query="select * from users where email=%s"
-        cursor.execute(query,(email,))
+        cursor.execute("SELECT * FROM users WHERE email=%s",(email,))
         user=cursor.fetchone()
         cursor.close()
         conn.close()
-        
         if user and check_password_hash(user['password'],password):
             session['user_id']=user['user_id']
             session['name']=user['name']
-            return redirect("/dashboard")
-        return "Invalid Email or Password"
-    return render_template("login.html")
+            flash("Login Successful","success")
+            return redirect('/dashboard')
+        flash("Invalid Email or Password","danger")
+        return redirect('/login')
+    return render_template('login.html')
 
 @app.route('/dashboard')
 def dashboard():
