@@ -1,12 +1,18 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Booking Successfull</title>
-    </head>
-    <body>
-        <h1>Booking Successfull</h1>
-        <h3>Your PNR Number:</h3>
-        <h2>{{pnr}}</h2>
-        <a href="/dashboard">Back to Dashboard</a>
-    </body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow">
+    <div class="card-body text-center">
+        <h2>Booking Successful</h2>
+        <h4>PNR: {{ pnr }}</h4>
+        <br>
+        <a href="/ticket/{{ booking_id }}"
+           class="btn btn-primary">
+            Download Ticket PDF
+        </a>
+        <a href="/dashboard"
+           class="btn btn-success">
+            Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

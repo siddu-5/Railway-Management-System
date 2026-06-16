@@ -1,8 +1,9 @@
-from flask import Flask,render_template,request,session,redirect,flash
+from flask import Flask,render_template,request,session,redirect,flash,send_file
 from database.db import get_db_connection
 from werkzeug.security import check_password_hash,generate_password_hash
 from datetime import datetime
 import random
+from reportlab.pdfgen import canvas
 
 app=Flask(__name__)
 app.secret_key="railway_secret_key"
@@ -109,11 +110,12 @@ def book_ticket(train_id):
         pnr="PNR"+str(random.randint(100000,999999))
         cursor.execute("insert into bookings(pnr,user_id,train_id,seats_booked,booking_date)values(%s,%s,%s,%s,%s)",
                        (pnr,session['user_id'],train_id,seats,datetime.now()))
+        booking_id=cursor.lastrowid
         cursor.execute("UPDATE trains SET available_seats=available_seats-%s WHERE train_id=%s",(seats, train_id))
         conn.commit()
         cursor.close()
         conn.close()
-        return render_template("booking_success.html",pnr=pnr)
+        return render_template("booking_success.html",pnr=pnr,booking_id=booking_id)
     cursor.close()
     conn.close()
     return render_template("book_ticket.html",train=train)
@@ -265,6 +267,38 @@ def cancel_booking(booking_id):
     cursor.close()
     conn.close()
     return redirect('/my_bookings')
+
+@app.route('/ticket/<int:booking_id>')
+def generate_ticket(booking_id):
+    conn=get_db_connection()
+    cursor=conn.cursor(dictionary=True)
+    query="""
+    SELECT b.*, u.name, t.train_name,
+           t.source, t.destination
+    FROM bookings b
+    JOIN users u
+        ON b.user_id = u.user_id
+    JOIN trains t
+        ON b.train_id = t.train_id
+    WHERE b.booking_id=%s
+    """
+    cursor.execute(query,(booking_id,))
+    booking=cursor.fetchone()
+    cursor.close()
+    conn.close()
+    filename = f"ticket_{booking_id}.pdf"
+    c=canvas.Canvas(filename)
+    c.setFont("Helvetica-Bold",18)
+    c.drawString(150,800,"Railway E-Ticket")
+    c.setFont("Helvetica",12)
+    c.drawString(100,740,f"Passenger: {booking['name']}")
+    c.drawString(100,710,f"PNR: {booking['pnr']}")
+    c.drawString(100,680,f"Train: {booking['train_name']}")
+    c.drawString(100,650,f"Route: {booking['source']} -> {booking['destination']}")
+    c.drawString(100,620,f"Seats Booked: {booking['seats_booked']}")
+    c.drawString(100,590,f"Booking Date: {booking['booking_date']}")
+    c.save()
+    return send_file(filename,as_attachment=True)
 
 if __name__=="__main__":
     app.run(debug=True)
