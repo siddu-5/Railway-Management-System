@@ -149,14 +149,31 @@ def admin_login():
         return "Invalid Credentials"
     return render_template('admin_login.html')
 
-@app.route("/admin/dashboard")
+@app.route('/admin/dashboard')
 def admin_dashboard():
     if 'admin' not in session:
         return redirect('/admin/login')
-    return render_template('admin_dashboard.html')
+    conn=get_db_connection()
+    cursor=conn.cursor(dictionary=True)
+    cursor.execute("SELECT COUNT(*) AS total_trains FROM trains")
+    trains=cursor.fetchone()
+    cursor.execute("SELECT COUNT(*) AS total_bookings FROM bookings")
+    bookings=cursor.fetchone()
+    cursor.execute("SELECT COUNT(*) AS total_users FROM users")
+    users=cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return render_template(
+        'admin_dashboard.html',
+        total_trains=trains['total_trains'],
+        total_bookings=bookings['total_bookings'],
+        total_users=users['total_users']
+    )
 
 @app.route('/admin/add_train',methods=['GET','POST'])
 def add_train():
+    if 'admin' not in session:
+        return redirect('/admin/login')
     if request.method=="POST":
         train_name=request.form['train_name']
         source=request.form['source']
@@ -178,6 +195,8 @@ def add_train():
 
 @app.route('/admin/trains')
 def admin_trains():
+    if 'admin' not in session:
+        return redirect('/admin/login')
     conn=get_db_connection()
     cursor=conn.cursor(dictionary=True)
     cursor.execute("select *from trains")
@@ -188,6 +207,8 @@ def admin_trains():
 
 @app.route('/admin/delete_train/<int:id>')
 def delete_train(id):
+    if 'admin' not in session:
+        return redirect('/admin/login')
     conn=get_db_connection()
     cursor=conn.cursor()
     cursor.execute("DELETE FROM trains WHERE train_id=%s",(id,))
@@ -195,6 +216,44 @@ def delete_train(id):
     cursor.close()
     conn.close()
     return redirect('/admin/trains')
+
+@app.route('/admin/edit_train/<int:train_id>',methods=['GET','POST'])
+def edit_train(train_id):
+    if 'admin' not in session:
+        return redirect('/admin/login')
+    conn=get_db_connection()
+    cursor=conn.cursor(dictionary=True)
+    if request.method=="POST":
+        train_name=request.form['train_name']
+        source=request.form['source']
+        destination=request.form['destination']
+        departure_time=request.form['departure_time']
+        arrival_time=request.form['arrival_time']
+        cursor.execute("""update trains set train_name=%s,source=%s,destination=%s,departure_time=%s,
+                       arrival_time=%s where train_id=%s""",(train_name,source,destination,departure_time,arrival_time,train_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect('/admin/trains')
+    cursor.execute("select *from trains where train_id=%s",(train_id,))
+    train=cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return render_template('edit_train.html',train=train)
+
+@app.route('/cancel_booking/<int:booking_id>')
+def cancel_booking(booking_id):
+    conn=get_db_connection()
+    cursor=conn.cursor(dictionary=True)
+    cursor.execute("select *from bookings where booking_id=%s",(booking_id,))
+    booking=cursor.fetchone()
+    if booking:
+        cursor.execute("update trains set available_seats=avaliable_seats+%s where train_id=%s",(booking['seats_booked'],booking['train_id']))
+        cursor.execute("delete from bookings where booking_id=%s",(booking_id,))
+        conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect('/my_bookings')
 
 if __name__=="__main__":
     app.run(debug=True)

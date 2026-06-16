@@ -10,12 +10,16 @@
             <th>PNR</th>
             <th>Train</th>
             <th>Seats</th>
+            <th>Action</th>
         </tr>
         {% for booking in bookings %}
         <tr>
             <td>{{ booking.pnr }}</td>
             <td>{{ booking.train_name }}</td>
             <td>{{ booking.seats_booked }}</td>
+            <td>
+                <a href="cancel_booking/{{booking.booking_id}}">Cancel Ticket</a>
+            </td>
         </tr>
         {% endfor %}
         </table>

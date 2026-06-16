@@ -23,6 +23,7 @@
                 <td>{{train.source}}</td>
                 <td>{{train.destination}}</td>
                 <td>{{train.total_seats}}</td>
+                <td><a href="/admin/edit_train/{{ train.train_id }}">Edit</a></td>
                 <td><a href="/admin/delete_train/{{train.train_id}}">Delete</a></td>
             </tr>
             {% endfor %}
