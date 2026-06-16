@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Manage Trains</title>
+    </head>
+    <body>
+        <h2>Manage Trains</h2>
+        <a href="/admin/add_train">Add New Train</a>
+        <br><br>
+        <table border='1'>
+            <tr>
+                <th>ID</th>
+                <th>Train Name</th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Total Seats</th>
+                <th>Actions</th>
+            </tr>
+            {% for train in trains%}
+            <tr>
+                <td>{{train.train_id}}</td>
+                <td>{{train.train_name}}</td>
+                <td>{{train.source}}</td>
+                <td>{{train.destination}}</td>
+                <td>{{train.total_seats}}</td>
+                <td><a href="/admin/delete_train/{{train.train_id}}">Delete</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <a href="/admin/dashboard">Back</a>
+    </body>
+</html>
