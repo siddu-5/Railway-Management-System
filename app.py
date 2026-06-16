@@ -63,5 +63,23 @@ def logout():
     session.clear()
     return redirect("/login")
 
+@app.route('/search',methods=["GET","POST"])
+def search_train():
+    if request.method=="POST":
+        source=request.form['source']
+        destination=request.form['destination']
+        conn=get_db_connection()
+        cursor=conn.cursor(dictionary=True)
+        
+        query="select * from trains where lower(source)=lower(%s) and lower(destination)=lower(%s)"
+        cursor.execute(query,(source,destination))
+        
+        trains=cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        return render_template("train_results.html",trains=trains)
+    return render_template("search_train.html")
+
 if __name__=="__main__":
     app.run(debug=True)
