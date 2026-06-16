@@ -12,6 +12,7 @@
                 <th>Destination</th>
                 <th>Departure</th>
                 <th>Arrival</th>
+                <th>Action</th>
             </tr>
             {% for train in trains%}
             <tr>
@@ -21,6 +22,11 @@
                 <td>{{train.destination}}</td>
                 <td>{{train.departure_time}}</td>
                 <td>{{train.arrival_time}}</td>
+                <td>
+                    <a href="/book/{{train.train_id}}">
+                        Book Ticket
+                    </a>
+                </td>
             </tr>
             {% endfor %}
         </table>

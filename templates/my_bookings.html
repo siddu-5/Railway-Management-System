@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>My Bookings</title>
+    </head>
+    <body>
+        <h2>My Bookings</h2>
+        <table border="1">
+        <tr>
+            <th>PNR</th>
+            <th>Train</th>
+            <th>Seats</th>
+        </tr>
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.pnr }}</td>
+            <td>{{ booking.train_name }}</td>
+            <td>{{ booking.seats_booked }}</td>
+        </tr>
+        {% endfor %}
+        </table>
+    </body>
+</html>
