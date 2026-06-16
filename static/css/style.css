@@ -1,20 +1,76 @@
-body{
-    background:#f5f6fa;
+body {
+    background: #f4f7fb;
+    font-family: 'Segoe UI', sans-serif;
 }
 
-.card{
-    border:none;
-    border-radius:15px;
+.custom-navbar {
+    background: #0d1b2a;
 }
 
-.card-header{
-    font-weight:bold;
+.hero-section {
+    background: linear-gradient(135deg,#0d6efd,#198754);
+    color: white;
+    padding: 80px;
+    border-radius: 20px;
+    text-align: center;
+    margin-top: 20px;
 }
 
-.navbar{
-    margin-bottom:20px;
+.dashboard-card {
+    border: none;
+    border-radius: 20px;
+    transition: .3s;
+    box-shadow:0 4px 20px rgba(0,0,0,.08);
 }
 
-.btn{
-    border-radius:8px;
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+}
+
+.card {
+    border: none;
+    border-radius: 20px;
+    box-shadow:0 4px 20px rgba(0,0,0,.08);
+}
+
+.ticket-card {
+    border-left: 6px solid #198754;
+}
+
+.table {
+    vertical-align: middle;
+}
+
+.status-confirmed {
+    background: #198754;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 15px;
+}
+
+.search-card {
+    padding: 30px;
+    background: white;
+    border-radius: 20px;
+    box-shadow:0 4px 20px rgba(0,0,0,.08);
+}
+
+.booking-card {
+    padding: 30px;
+    background: white;
+    border-radius: 20px;
+}
+
+.train-badge {
+    background: #0d6efd;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 15px;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 40px;
+    color: gray;
 }

@@ -1,0 +1,45 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="card">
+  <div class="card-body">
+    <div class="text-center">
+      <h1>👤</h1>
+
+      <h3>{{ user.name }}</h3>
+
+      <p>{{ user.email }}</p>
+    </div>
+
+    <hr />
+
+    <div class="row">
+      <div class="col-md-6">
+        <p>
+          <strong>Phone:</strong>
+          {{ user.phone or 'Not Added' }}
+        </p>
+
+        <p>
+          <strong>Gender:</strong>
+          {{ user.gender or 'Not Added' }}
+        </p>
+      </div>
+
+      <div class="col-md-6">
+        <p>
+          <strong>DOB:</strong>
+          {{ user.dob or 'Not Added' }}
+        </p>
+
+        <p>
+          <strong>Address:</strong>
+          {{ user.address or 'Not Added' }}
+        </p>
+      </div>
+    </div>
+
+    <a href="/edit_profile" class="btn btn-primary"> Edit Profile </a>
+  </div>
+</div>
+
+{% endblock %}

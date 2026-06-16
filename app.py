@@ -104,12 +104,15 @@ def book_ticket(train_id):
     cursor.execute("select *from trains where train_id=%s",(train_id,))
     train=cursor.fetchone()
     if request.method=="POST":
+        passenger_name=request.form['passenger_name']
+        age=request.form['age']
+        gender=request.form['gender']
         seats=int(request.form['seats'])
         if seats>train['available_seats']:
             return "Not enough seats available"
         pnr="PNR"+str(random.randint(100000,999999))
-        cursor.execute("insert into bookings(pnr,user_id,train_id,seats_booked,booking_date)values(%s,%s,%s,%s,%s)",
-                       (pnr,session['user_id'],train_id,seats,datetime.now()))
+        cursor.execute("""INSERT INTO bookings(pnr,user_id,train_id,passenger_name,age,gender,seats_booked,booking_date)
+                VALUES(%s,%s,%s,%s,%s,%s,%s,%s)""",(pnr,session['user_id'],train_id,passenger_name,age,gender,seats,datetime.now()))
         booking_id=cursor.lastrowid
         cursor.execute("UPDATE trains SET available_seats=available_seats-%s WHERE train_id=%s",(seats, train_id))
         conn.commit()
@@ -168,19 +171,19 @@ def admin_dashboard():
         return redirect('/admin/login')
     conn=get_db_connection()
     cursor=conn.cursor(dictionary=True)
-    cursor.execute("SELECT COUNT(*) AS total_trains FROM trains")
-    trains=cursor.fetchone()
-    cursor.execute("SELECT COUNT(*) AS total_bookings FROM bookings")
-    bookings=cursor.fetchone()
     cursor.execute("SELECT COUNT(*) AS total_users FROM users")
-    users=cursor.fetchone()
+    total_users=cursor.fetchone()['total_users']
+    cursor.execute("SELECT COUNT(*) AS total_trains FROM trains")
+    total_trains=cursor.fetchone()['total_trains']
+    cursor.execute("SELECT COUNT(*) AS total_bookings FROM bookings")
+    total_bookings=cursor.fetchone()['total_bookings']
     cursor.close()
     conn.close()
     return render_template(
         'admin_dashboard.html',
-        total_trains=trains['total_trains'],
-        total_bookings=bookings['total_bookings'],
-        total_users=users['total_users']
+        total_users=total_users,
+        total_trains=total_trains,
+        total_bookings=total_bookings
     )
 
 @app.route('/admin/add_train',methods=['GET','POST'])
@@ -299,6 +302,49 @@ def generate_ticket(booking_id):
     c.drawString(100,590,f"Booking Date: {booking['booking_date']}")
     c.save()
     return send_file(filename,as_attachment=True)
+
+@app.route('/profile')
+def profile():
+    if 'user_id' not in session:
+        return redirect('/login')
+    conn=get_db_connection()
+    cursor=conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE user_id=%s",(session['user_id'],))
+    user=cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return render_template('profile.html',user=user)
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+def edit_profile():
+    conn=get_db_connection()
+    cursor=conn.cursor(dictionary=True)
+    if request.method=='POST':
+        name=request.form['name']
+        phone=request.form['phone']
+        gender=request.form['gender']
+        dob=request.form['dob']
+        address=request.form['address']
+
+        cursor.execute("UPDATE users SET name=%s,phone=%s,gender=%s,dob=%s,address=%s WHERE user_id=%s",
+            (name,phone,gender,dob,address,session['user_id']))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash("Profile Updated Successfully","success")
+        return redirect('/profile')
+
+    cursor.execute(
+        "SELECT * FROM users WHERE user_id=%s",
+        (session['user_id'],)
+    )
+    user=cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return render_template(
+        'edit_profile.html',
+        user=user
+    )
 
 if __name__=="__main__":
     app.run(debug=True)

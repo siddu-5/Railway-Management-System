@@ -1,19 +1,45 @@
-{% extends 'base.html' %}
-{% block content %}
-<div class="text-center mt-5">
-    <h1 class="display-4">
-        Railway Management System
-    </h1>
-    <p class="lead">
-        Book train tickets easily and manage journeys.
-    </p>
-    <a href="/login"
-       class="btn btn-primary btn-lg">
-        Login
-    </a>
-    <a href="/register"
-       class="btn btn-success btn-lg">
-        Register
-    </a>
+{% extends 'base.html' %} {% block content %}
+
+<div class="hero-section">
+  <h1 class="display-4 fw-bold">Railway Ticket Booking System</h1>
+
+  <p class="lead mt-3">Search trains, book tickets and manage journeys.</p>
+
+  <a href="/login" class="btn btn-light btn-lg mt-3"> Login </a>
+
+  <a href="/register" class="btn btn-warning btn-lg mt-3"> Register </a>
 </div>
+
+<div class="row mt-5">
+  <div class="col-md-4">
+    <div class="card text-center p-4">
+      <h2>🚆</h2>
+
+      <h4>Search Trains</h4>
+
+      <p>Find trains across routes.</p>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card text-center p-4">
+      <h2>🎫</h2>
+
+      <h4>Instant Booking</h4>
+
+      <p>Book tickets within seconds.</p>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card text-center p-4">
+      <h2>📄</h2>
+
+      <h4>E-Ticket PDF</h4>
+
+      <p>Download tickets anytime.</p>
+    </div>
+  </div>
+</div>
+
 {% endblock %}

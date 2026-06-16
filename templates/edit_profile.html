@@ -1,0 +1,67 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="card">
+  <div class="card-body">
+    <h2>Edit Profile</h2>
+
+    <hr />
+
+    <form method="POST">
+      <div class="mb-3">
+        <label>Name</label>
+
+        <input
+          type="text"
+          class="form-control"
+          name="name"
+          value="{{ user.name }}"
+          required />
+      </div>
+
+      <div class="mb-3">
+        <label>Phone</label>
+
+        <input
+          type="text"
+          class="form-control"
+          name="phone"
+          value="{{ user.phone or '' }}" />
+      </div>
+
+      <div class="mb-3">
+        <label>Gender</label>
+
+        <select name="gender" class="form-select">
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label>Date of Birth</label>
+
+        <input
+          type="date"
+          class="form-control"
+          name="dob"
+          value="{{ user.dob or '' }}" />
+      </div>
+
+      <div class="mb-3">
+        <label>Address</label>
+
+        <textarea class="form-control" name="address">
+
+{{ user.address or '' }}
+
+</textarea
+        >
+      </div>
+
+      <button class="btn btn-success">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

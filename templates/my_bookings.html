@@ -1,27 +1,69 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>My Bookings</title>
-    </head>
-    <body>
-        <h2>My Bookings</h2>
-        <table border="1">
-        <tr>
-            <th>PNR</th>
-            <th>Train</th>
-            <th>Seats</th>
-            <th>Action</th>
-        </tr>
-        {% for booking in bookings %}
-        <tr>
-            <td>{{ booking.pnr }}</td>
-            <td>{{ booking.train_name }}</td>
-            <td>{{ booking.seats_booked }}</td>
-            <td>
-                <a href="cancel_booking/{{booking.booking_id}}">Cancel Ticket</a>
-            </td>
-        </tr>
-        {% endfor %}
-        </table>
-    </body>
-</html>
+{% extends 'base.html' %} {% block content %}
+
+<h2 class="mb-4">My Bookings</h2>
+
+{% if bookings %} {% for booking in bookings %}
+
+<div class="card ticket-card mb-4">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-8">
+        <h4>{{ booking.train_name }}</h4>
+        <p>
+          <strong>Passenger:</strong>
+          {{ booking.passenger_name }}
+        </p>
+
+        <p>
+          <strong>PNR:</strong>
+          {{ booking.pnr }}
+        </p>
+
+        <p>
+          <strong>Age:</strong>
+          {{ booking.age }}
+        </p>
+
+        <p>
+          <strong>Gender:</strong>
+          {{ booking.gender }}
+        </p>
+
+        <p>
+          <strong>Journey:</strong>
+          Hyderabad → Visakhapatnam
+        </p>
+
+        <p>
+          <strong>Seats:</strong>
+          {{ booking.seats_booked }}
+        </p>
+
+        <p>
+          <strong>Status:</strong>
+          <span class="badge bg-success"> Confirmed </span>
+        </p>
+      </div>
+
+      <div class="col-md-4 text-end">
+        <a href="/ticket/{{ booking.booking_id }}" class="btn btn-primary">
+          Download Ticket
+        </a>
+
+        <br /><br />
+
+        <a
+          href="/cancel_booking/{{ booking.booking_id }}"
+          class="btn btn-danger">
+          Cancel Ticket
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endfor %} {% else %}
+
+<div class="alert alert-info">No bookings found.</div>
+
+{% endif %} {% endblock %}

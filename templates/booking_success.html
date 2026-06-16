@@ -1,18 +1,23 @@
-{% extends 'base.html' %}
-{% block content %}
-<div class="card shadow">
-    <div class="card-body text-center">
-        <h2>Booking Successful</h2>
-        <h4>PNR: {{ pnr }}</h4>
-        <br>
-        <a href="/ticket/{{ booking_id }}"
-           class="btn btn-primary">
-            Download Ticket PDF
-        </a>
-        <a href="/dashboard"
-           class="btn btn-success">
-            Dashboard
-        </a>
-    </div>
+{% extends 'base.html' %} {% block content %}
+
+<div class="card text-center p-5">
+  <h1 class="text-success">✅ Booking Successful</h1>
+
+  <hr />
+
+  <h3>PNR Number</h3>
+
+  <h2 class="text-primary">{{ pnr }}</h2>
+
+  <br />
+
+  <div>
+    <a href="/ticket/{{ booking_id }}" class="btn btn-primary">
+      Download Ticket PDF
+    </a>
+
+    <a href="/my_bookings" class="btn btn-success"> My Bookings </a>
+  </div>
 </div>
+
 {% endblock %}
