@@ -5,8 +5,15 @@ from datetime import datetime
 import random
 from reportlab.pdfgen import canvas
 
+import os
+if not os.path.exists("railway.db"):
+    import create_db
+
 app=Flask(__name__)
-app.secret_key="railway_secret_key"
+app.secret_key = os.getenv(
+    "SECRET_KEY",
+    "railway_secret_key"
+)
 
 @app.route('/')
 def home():
@@ -19,8 +26,8 @@ def register():
         email=request.form['email']
         password=request.form['password']
         conn=get_db_connection()
-        cursor=conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users WHERE email=%s",(email,))
+        cursor=conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE email=?",(email,))
         existing=cursor.fetchone()
         if existing:
             flash("Email already registered","warning")
@@ -30,7 +37,7 @@ def register():
         hashed_password=generate_password_hash(password)
         cursor.execute("""
             INSERT INTO users(name,email,password)
-            VALUES(%s,%s,%s)
+            VALUES(?,?,?)
             """,
             (name,email,hashed_password)
         )
@@ -41,40 +48,61 @@ def register():
         return redirect('/login')
     return render_template('register.html')
 
-from werkzeug.security import check_password_hash
-
-@app.route('/login',methods=['GET','POST'])
+@app.route('/login',methods=['GET', 'POST'])
 def login():
     if request.method=='POST':
         email=request.form['email']
         password=request.form['password']
         conn=get_db_connection()
-        cursor=conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users WHERE email=%s",(email,))
-        user=cursor.fetchone()
+        cursor=conn.cursor()
+        cursor.execute(
+            "SELECT * FROM users WHERE email=?",
+            (email,)
+        )
+        user = cursor.fetchone()
         cursor.close()
         conn.close()
-        if user and check_password_hash(user['password'],password):
-            session['user_id']=user['user_id']
-            session['name']=user['name']
-            flash("Login Successful","success")
-            return redirect('/dashboard')
-        flash("Invalid Email or Password","danger")
-        return redirect('/login')
-    return render_template('login.html')
+
+        if user and check_password_hash(user["password"], password):
+            session["user_id"] = user["user_id"]
+            session["name"] = user["name"]
+            flash("Login Successful", "success")
+            return redirect("/dashboard")
+        flash("Invalid Email or Password", "danger")
+        return redirect("/login")
+    return render_template("login.html")
 
 @app.route('/dashboard')
 def dashboard():
     if 'user_id' not in session:
-        return redirect("/login")
+        return redirect('/login')
+
+    conn=get_db_connection()
+    cursor=conn.cursor()
+    cursor.execute(
+        """
+        SELECT COUNT(*) AS total_bookings
+        FROM bookings
+        WHERE user_id=?
+        """,
+        (session['user_id'],)
+    )
+    booking_count=cursor.fetchone()['total_bookings']
+    cursor.close()
+    conn.close()
     return render_template(
         "dashboard.html",
-        name=session["name"]
+        name=session["name"],
+        booking_count=booking_count
     )
     
 @app.route('/logout')
 def logout():
     session.clear()
+    flash(
+        "Logged out successfully.",
+        "info"
+    )
     return redirect("/login")
 
 @app.route('/search',methods=["GET","POST"])
@@ -83,9 +111,9 @@ def search_train():
         source=request.form['source']
         destination=request.form['destination']
         conn=get_db_connection()
-        cursor=conn.cursor(dictionary=True)
+        cursor=conn.cursor()
         
-        query="select * from trains where lower(source)=lower(%s) and lower(destination)=lower(%s)"
+        query="select * from trains where lower(source)=lower(?) and lower(destination)=lower(?)"
         cursor.execute(query,(source,destination))
         
         trains=cursor.fetchall()
@@ -100,8 +128,8 @@ def book_ticket(train_id):
     if 'user_id' not in session:
         return redirect('/login')
     conn=get_db_connection()
-    cursor=conn.cursor(dictionary=True)
-    cursor.execute("select *from trains where train_id=%s",(train_id,))
+    cursor=conn.cursor()
+    cursor.execute("select *from trains where train_id=?",(train_id,))
     train=cursor.fetchone()
     if request.method=="POST":
         passenger_name=request.form['passenger_name']
@@ -112,9 +140,9 @@ def book_ticket(train_id):
             return "Not enough seats available"
         pnr="PNR"+str(random.randint(100000,999999))
         cursor.execute("""INSERT INTO bookings(pnr,user_id,train_id,passenger_name,age,gender,seats_booked,booking_date)
-                VALUES(%s,%s,%s,%s,%s,%s,%s,%s)""",(pnr,session['user_id'],train_id,passenger_name,age,gender,seats,datetime.now()))
+                VALUES(?,?,?,?,?,?,?,?)""",(pnr,session['user_id'],train_id,passenger_name,age,gender,seats,datetime.now()))
         booking_id=cursor.lastrowid
-        cursor.execute("UPDATE trains SET available_seats=available_seats-%s WHERE train_id=%s",(seats, train_id))
+        cursor.execute("UPDATE trains SET available_seats=available_seats-? WHERE train_id=?",(seats, train_id))
         conn.commit()
         cursor.close()
         conn.close()
@@ -125,21 +153,21 @@ def book_ticket(train_id):
 
 @app.route('/my_bookings')
 def my_bookings():
+    if 'user_id' not in session:
+        return redirect('/login')
     conn=get_db_connection()
-    cursor=conn.cursor(dictionary=True)
+    cursor=conn.cursor()
     query="""
     SELECT b.*, t.train_name
     FROM bookings b
     JOIN trains t
     ON b.train_id = t.train_id
-    WHERE b.user_id = %s
+    WHERE b.user_id = ?
     """
-
     cursor.execute(
         query,
         (session['user_id'],)
     )
-
     bookings=cursor.fetchall()
     cursor.close()
     conn.close()
@@ -154,13 +182,14 @@ def admin_login():
         username=request.form['username']
         password=request.form['password']
         conn=get_db_connection()
-        cursor=conn.cursor(dictionary=True)
-        cursor.execute("select *from admins where username=%s",(username,))
+        cursor=conn.cursor()
+        cursor.execute("select *from admins where username=?",(username,))
         admin=cursor.fetchone()
         cursor.close()
         conn.close()
-        if admin and admin['password']==password:
-            session['admin']=username
+        if admin and check_password_hash(admin['password'], password):
+            session['admin'] = username
+            flash("Admin Login Successful", "success")
             return redirect('/admin/dashboard')
         return "Invalid Credentials"
     return render_template('admin_login.html')
@@ -170,7 +199,7 @@ def admin_dashboard():
     if 'admin' not in session:
         return redirect('/admin/login')
     conn=get_db_connection()
-    cursor=conn.cursor(dictionary=True)
+    cursor=conn.cursor()
     cursor.execute("SELECT COUNT(*) AS total_users FROM users")
     total_users=cursor.fetchone()['total_users']
     cursor.execute("SELECT COUNT(*) AS total_trains FROM trains")
@@ -202,7 +231,7 @@ def add_train():
         cursor=conn.cursor()
         
         cursor.execute("""insert into trains(train_name,source,destination,departure_time,arrival_time,total_seats,available_seats)
-                       values(%s,%s,%s,%s,%s,%s,%s)""",(train_name,source,destination,departure_time,arrival_time,total_seats,total_seats))
+                       values(?,?,?,?,?,?,?)""",(train_name,source,destination,departure_time,arrival_time,total_seats,total_seats))
         conn.commit()
         cursor.close()
         conn.close()
@@ -214,7 +243,7 @@ def admin_trains():
     if 'admin' not in session:
         return redirect('/admin/login')
     conn=get_db_connection()
-    cursor=conn.cursor(dictionary=True)
+    cursor=conn.cursor()
     cursor.execute("select *from trains")
     trains=cursor.fetchall()
     cursor.close()
@@ -227,7 +256,7 @@ def delete_train(id):
         return redirect('/admin/login')
     conn=get_db_connection()
     cursor=conn.cursor()
-    cursor.execute("DELETE FROM trains WHERE train_id=%s",(id,))
+    cursor.execute("DELETE FROM trains WHERE train_id=?",(id,))
     conn.commit()
     cursor.close()
     conn.close()
@@ -238,20 +267,21 @@ def edit_train(train_id):
     if 'admin' not in session:
         return redirect('/admin/login')
     conn=get_db_connection()
-    cursor=conn.cursor(dictionary=True)
+    cursor=conn.cursor()
     if request.method=="POST":
         train_name=request.form['train_name']
         source=request.form['source']
         destination=request.form['destination']
         departure_time=request.form['departure_time']
         arrival_time=request.form['arrival_time']
-        cursor.execute("""update trains set train_name=%s,source=%s,destination=%s,departure_time=%s,
-                       arrival_time=%s where train_id=%s""",(train_name,source,destination,departure_time,arrival_time,train_id))
+        total_seats = request.form['total_seats']
+        cursor.execute("""UPDATE trains SET train_name=?,source=?,destination=?,departure_time=?,arrival_time=?,total_seats=?,
+            available_seats=? WHERE train_id=?""",(train_name,source,destination,departure_time,arrival_time,total_seats,total_seats,train_id))
         conn.commit()
         cursor.close()
         conn.close()
         return redirect('/admin/trains')
-    cursor.execute("select *from trains where train_id=%s",(train_id,))
+    cursor.execute("select *from trains where train_id=?",(train_id,))
     train=cursor.fetchone()
     cursor.close()
     conn.close()
@@ -260,12 +290,12 @@ def edit_train(train_id):
 @app.route('/cancel_booking/<int:booking_id>')
 def cancel_booking(booking_id):
     conn=get_db_connection()
-    cursor=conn.cursor(dictionary=True)
-    cursor.execute("select *from bookings where booking_id=%s",(booking_id,))
+    cursor=conn.cursor()
+    cursor.execute("select *from bookings where booking_id=?",(booking_id,))
     booking=cursor.fetchone()
     if booking:
-        cursor.execute("update trains set available_seats=avaliable_seats+%s where train_id=%s",(booking['seats_booked'],booking['train_id']))
-        cursor.execute("delete from bookings where booking_id=%s",(booking_id,))
+        cursor.execute("update trains set available_seats=available_seats+? where train_id=?",(booking['seats_booked'],booking['train_id']))
+        cursor.execute("delete from bookings where booking_id=?",(booking_id,))
         conn.commit()
     cursor.close()
     conn.close()
@@ -274,7 +304,7 @@ def cancel_booking(booking_id):
 @app.route('/ticket/<int:booking_id>')
 def generate_ticket(booking_id):
     conn=get_db_connection()
-    cursor=conn.cursor(dictionary=True)
+    cursor=conn.cursor()
     query="""
     SELECT b.*, u.name, t.train_name,
            t.source, t.destination
@@ -283,7 +313,7 @@ def generate_ticket(booking_id):
         ON b.user_id = u.user_id
     JOIN trains t
         ON b.train_id = t.train_id
-    WHERE b.booking_id=%s
+    WHERE b.booking_id=?
     """
     cursor.execute(query,(booking_id,))
     booking=cursor.fetchone()
@@ -308,8 +338,8 @@ def profile():
     if 'user_id' not in session:
         return redirect('/login')
     conn=get_db_connection()
-    cursor=conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM users WHERE user_id=%s",(session['user_id'],))
+    cursor=conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE user_id=?",(session['user_id'],))
     user=cursor.fetchone()
     cursor.close()
     conn.close()
@@ -317,8 +347,10 @@ def profile():
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 def edit_profile():
+    if 'user_id' not in session:
+        return redirect('/login')
     conn=get_db_connection()
-    cursor=conn.cursor(dictionary=True)
+    cursor=conn.cursor()
     if request.method=='POST':
         name=request.form['name']
         phone=request.form['phone']
@@ -326,7 +358,7 @@ def edit_profile():
         dob=request.form['dob']
         address=request.form['address']
 
-        cursor.execute("UPDATE users SET name=%s,phone=%s,gender=%s,dob=%s,address=%s WHERE user_id=%s",
+        cursor.execute("UPDATE users SET name=?,phone=?,gender=?,dob=?,address=? WHERE user_id=?",
             (name,phone,gender,dob,address,session['user_id']))
         conn.commit()
         cursor.close()
@@ -335,7 +367,7 @@ def edit_profile():
         return redirect('/profile')
 
     cursor.execute(
-        "SELECT * FROM users WHERE user_id=%s",
+        "SELECT * FROM users WHERE user_id=?",
         (session['user_id'],)
     )
     user=cursor.fetchone()

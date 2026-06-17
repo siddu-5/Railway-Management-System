@@ -1,22 +1,111 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Edit Train</title>
-    </head>
-    <body>
-        <h2>Edit Train</h2>
-        <form method="POST">
-            <label>Train Name:</label>
-            <input type="text" name="train_name" value="{{train.train_name}}" required><br><br>
-            <label>Source:</label>
-            <input type="text" name="source" value="{{train.source}}" required><br><br>
-            <label>Destination:</label>
-            <input type="text" name="destination" value="{{train.destination}}" required><br><br>
-            <label>Departure Time:</label>
-            <input type="text" name="departure_time" value="{{train.departure_time}}" required><br><br>
-            <label>Arrival Time:</label>
-            <input type="text" name="arrival_time" value="{{train.arrival_time}}" required><br><br>
-            <button type="submit">Update Train</button>
-        </form>
-    </body>
-</html>
+{% extends 'base.html' %} {% block content %}
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-warning text-dark">
+          <h3 class="mb-0">
+            <i class="bi bi-pencil-square"></i>
+
+            Edit Train Details
+          </h3>
+        </div>
+
+        <div class="card-body p-4">
+          <form method="POST">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label"> Train Name </label>
+
+                <input
+                  type="text"
+                  name="train_name"
+                  class="form-control"
+                  value="{{ train.train_name }}"
+                  required />
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label"> Source Station </label>
+
+                <input
+                  type="text"
+                  name="source"
+                  class="form-control"
+                  value="{{ train.source }}"
+                  required />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label"> Destination Station </label>
+
+                <input
+                  type="text"
+                  name="destination"
+                  class="form-control"
+                  value="{{ train.destination }}"
+                  required />
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label"> Total Seats </label>
+
+                <input
+                  type="number"
+                  name="total_seats"
+                  class="form-control"
+                  value="{{ train.total_seats }}"
+                  required />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label"> Departure Time </label>
+
+                <input
+                  type="time"
+                  name="departure_time"
+                  class="form-control"
+                  value="{{ train.departure_time }}"
+                  required />
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label"> Arrival Time </label>
+
+                <input
+                  type="time"
+                  name="arrival_time"
+                  class="form-control"
+                  value="{{ train.arrival_time }}"
+                  required />
+              </div>
+            </div>
+
+            <hr />
+
+            <div class="d-flex justify-content-between">
+              <a href="/admin/trains" class="btn btn-secondary">
+                <i class="bi bi-arrow-left-circle"></i>
+
+                Back
+              </a>
+
+              <button type="submit" class="btn btn-warning">
+                <i class="bi bi-check-circle-fill"></i>
+
+                Update Train
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
