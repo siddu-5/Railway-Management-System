@@ -209,12 +209,6 @@ admin123
 
 ---
 
-##  Author
-**Siddu Arnakonda**
-GitHub:https://github.com/siddu-5
-
----
-
 ##  If you like this project
 
 Give this repository a ⭐ on GitHub.
