@@ -1,12 +1,12 @@
-# 🚆 Railway Management System
+#  Railway Management System
 A modern **Railway Management System** developed using **Flask**, **SQLite**, **HTML**, **CSS**, and **Bootstrap**. The application provides a complete railway ticket booking experience with secure user authentication, train management, ticket booking, PDF ticket generation, and an admin dashboard.
 
-## 🌐 Live Demo
-🚀 https://railway-management-system-lf1i.onrender.com
+## Live Demo
+https://railway-management-system-lf1i.onrender.com
 
 ---
-## 📌 Features
-### 👤 User Module
+## Features
+### User Module
 - User Registration
 - Secure Login (Password Hashing)
 - Dashboard
@@ -21,7 +21,7 @@ A modern **Railway Management System** developed using **Flask**, **SQLite**, **
 - Edit Profile
 - Logout
 ---
-### 🛠 Admin Module
+### Admin Module
 - Admin Login
 - Dashboard
 - View Statistics
@@ -30,7 +30,7 @@ A modern **Railway Management System** developed using **Flask**, **SQLite**, **
 - Delete Train
 - Manage Available Trains
 ---
-## 💻 Technologies Used
+## Technologies Used
 
 | Technology | Purpose |
 |------------|---------|
@@ -44,7 +44,7 @@ A modern **Railway Management System** developed using **Flask**, **SQLite**, **
 | Werkzeug | Password Hashing |
 
 ---
-## 📂 Project Structure
+## Project Structure
 ```
 Railway-Management-System/
 │
@@ -69,24 +69,24 @@ Railway-Management-System/
 └── venv/
 ```
 ---
-## 🚀 Installation
-### 1️⃣ Clone the Repository
+## Installation
+### 1.Clone the Repository
 ```bash
 git clone https://github.com/YOUR_USERNAME/Railway-Management-System.git
 ```
 ---
-### 2️⃣ Navigate to Project
+### 2.Navigate to Project
 ```bash
 cd Railway-Management-System
 ```
 ---
-### 3️⃣ Create Virtual Environment
+### 3.Create Virtual Environment
 
 ```bash
 python -m venv venv
 ```
 ---
-### 4️⃣ Activate Virtual Environment
+### 4.Activate Virtual Environment
 **Windows**
 ```bash
 venv\Scripts\activate
@@ -96,12 +96,12 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 ---
-### 5️⃣ Install Dependencies
+### 5.Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 ---
-### 6️⃣ Run the Application
+### 6.Run the Application
 ```bash
 python app.py
 ```
@@ -111,7 +111,7 @@ Open your browser and visit
 http://127.0.0.1:5000
 ```
 ---
-## 👤 Default Admin Credentials
+## Default Admin Credentials
 Username
 ```
 admin
@@ -121,48 +121,48 @@ Password
 admin123
 ```
 ---
-## 📸 Application Screenshots
-### 🏠 Home Page
+## Application Screenshots
+### Home Page
 <img width="1917" height="971" alt="Screenshot 2026-06-17 185607" src="https://github.com/user-attachments/assets/074443b7-0f65-4f57-bd79-bc74dc8e1064" />
 
 ---
 
-### 🔐 Login Page
+### Login Page
 <img width="1917" height="963" alt="Screenshot 2026-06-17 185708" src="https://github.com/user-attachments/assets/48bfc784-6c7c-44bc-b232-bb37e9ea3737" />
 
 ---
 
-### 📊 User Dashboard
+### User Dashboard
 <img width="1918" height="963" alt="Screenshot 2026-06-17 185749" src="https://github.com/user-attachments/assets/0edacac9-d698-4ccd-b4ae-c708f429249e" />
 
 ---
 
-### 🚆 Search Trains
+### Search Trains
 <img width="1918" height="533" alt="Screenshot 2026-06-17 185830" src="https://github.com/user-attachments/assets/fb43ec3c-16d0-40f5-87a9-c8a5fc267017" />
 
 ---
 
-### 🎫 Book Ticket
+###  Book Ticket
 <img width="1918" height="867" alt="Screenshot 2026-06-17 185944" src="https://github.com/user-attachments/assets/df5d2fa2-a6d7-4768-8888-974400c4357e" />
 
 ---
 
-### 📄 PDF Ticket
+###  PDF Ticket
 <img width="877" height="497" alt="Screenshot 2026-06-17 190039" src="https://github.com/user-attachments/assets/c64dc1ab-b702-4be3-a492-cc3e44dafd84" />
 
 ---
 
-### 🛠 Admin Dashboard
+###  Admin Dashboard
 <img width="1918" height="968" alt="Screenshot 2026-06-17 190147" src="https://github.com/user-attachments/assets/395a7e2c-308d-42f5-979b-d5df1e698f1f" />
 
 ---
 
-### 🚉 Manage Trains
+###  Manage Trains
 <img width="1201" height="952" alt="Screenshot 2026-06-17 190231" src="https://github.com/user-attachments/assets/d3268faa-0c8c-48fa-8656-7239cbc5e4c0" />
 
 ---
 
-## 📋 Database Tables
+##  Database Tables
 
 - Users
 - Admins
@@ -171,7 +171,7 @@ admin123
 
 ---
 
-## 🔒 Security Features
+## Security Features
 
 - Password Hashing using Werkzeug
 - Session Management
@@ -181,7 +181,7 @@ admin123
 
 ---
 
-## ✨ Key Functionalities
+##  Key Functionalities
 
 - User Authentication
 - Train Search
@@ -195,7 +195,7 @@ admin123
 
 ---
 
-## 🎯 Future Improvements
+##  Future Improvements
 
 - Online Payment Gateway
 - Email Ticket Confirmation
@@ -209,17 +209,17 @@ admin123
 
 ---
 
-## 👨‍💻 Author
+##  Author
 **Siddu Arnakonda**
 GitHub:https://github.com/siddu-5
 
 ---
 
-## ⭐ If you like this project
+##  If you like this project
 
 Give this repository a ⭐ on GitHub.
 
 ---
 
-## 📜 License
+## License
 This project is developed for educational and portfolio purposes.
